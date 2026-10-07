@@ -235,9 +235,18 @@ const PRODUITS = [
   { nom: "Pinceau Teint", type: "Pinceau", gamme: "accessoires", prix: 14.9, forme: "pinceau", c: "#e8d3c0" },
 ];
 
-// Photo produit : assets/img/produits/<nomcolle>.png, sinon garde l'icône dessinée
+// Photo produit : cherche <nomcolle>.png dans plusieurs dossiers, sinon garde l'icône dessinée
 const slug = (t) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-window.essaiPhoto = (img) => img.remove();
+const DOSSIERS_PHOTOS = ["assets/img/", "assets/img/produits/", "assets/produits/", "assets/", "produits/", "img/", ""];
+window.essaiPhoto = (img) => {
+  const i = Number(img.dataset.essai || 0) + 1;
+  if (i < DOSSIERS_PHOTOS.length) {
+    img.dataset.essai = i;
+    img.src = DOSSIERS_PHOTOS[i] + img.dataset.fichier;
+  } else {
+    img.remove();
+  }
+};
 const NOMS_GAMMES = { teint: "Teint", yeux: "Yeux", levres: "Lèvres", sourcils: "Sourcils", accessoires: "Accessoires" };
 const euros = (n) => n.toFixed(2).replace(".", ",") + " €";
 
@@ -250,7 +259,7 @@ if (grille) {
     art.dataset.gamme = p.gamme;
     const visuel = p.star
       ? `<div class="flacon" role="img" aria-label="Flacon du fond de teint Éclat Nu"><img src="assets/img/flacon.png" alt=""><span class="flacon__liquide"></span><span class="flacon__ombres"></span></div><span class="produit__badge">Best-seller</span>`
-      : `<img class="produit__photo" src="assets/img/produits/${slug(p.nom)}.png" alt="${p.nom}, ${p.type.toLowerCase()}" loading="lazy" onerror="essaiPhoto(this)">${FORMES[p.forme](p.c)}`;
+      : `<img class="produit__photo" src="${DOSSIERS_PHOTOS[0]}${slug(p.nom)}.png" data-fichier="${slug(p.nom)}.png" alt="${p.nom}, ${p.type.toLowerCase()}" onerror="essaiPhoto(this)">${FORMES[p.forme](p.c)}`;
     art.innerHTML = `
       <div class="produit__visuel">${visuel}</div>
       <h3>${p.nom}</h3>
