@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Le blog Lumen · Conseils maquillage naturel</title>
+  <meta name="description" content="Conseils, tutoriels et astuces maquillage naturel par Lumen.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,0..100&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/img/logo.png">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="conteneur nav__inner">
+    <a class="logo" href="index.html" aria-label="Lumen, accueil"><img class="logo__img" src="assets/img/logo.png" alt="Lumen" onerror="this.remove()"><span class="logo__texte">Lumen</span></a>
+    <ul class="nav__liens" id="menu">
+      <li><a href="index.html#eclat-nu">Éclat Nu</a></li>
+      <li><a href="index.html#nuancier">Nuancier</a></li>
+      <li><a href="index.html#produits">Produits</a></li>
+      <li><a href="blog.html" aria-current="page">Blog</a></li>
+    </ul>
+    <div class="nav__actions">
+      <a class="btn" href="index.html#quiz">Trouver ma teinte</a>
+      <button class="panier" type="button" aria-label="Panier">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        <span class="panier__nb" data-vide="true">0</span>
+      </button>
+      <button class="burger" type="button" aria-label="Ouvrir le menu" aria-controls="menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="section section--studio" style="padding-bottom:64px">
+    <div class="conteneur">
+      <div class="intro" style="margin-bottom:40px">
+        <h1 style="font-size:clamp(2.4rem,5vw,3.8rem)">Le blog</h1>
+        <p>Conseils, tutoriels et astuces pour un maquillage naturel qui te ressemble, sans y passer ta matinée.</p>
+      </div>
+      <a class="blog-une" href="article-eclat-nu.html" style="background:var(--lait)">
+        <img src="assets/img/splash.jpg" alt="Flacon Éclat Nu entouré d'une vague de fond de teint">
+        <div class="blog-une__texte">
+          <span class="meta">Produit, 4 min de lecture</span>
+          <h2 style="font-size:clamp(1.6rem,3vw,2.2rem)">Fond de teint Éclat Nu : un teint naturel en 2 minutes, qui tient du premier cours à la dernière sortie</h2>
+          <p>Pour qui, comment choisir ta teinte, comment l'appliquer et combien ça coûte : tout ce qu'il faut savoir avant de l'adopter.</p>
+          <span class="lien-fleche">Lire l'article</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:64px">
+    <div class="conteneur">
+      <h2 style="font-size:2rem">Prochains articles</h2>
+      <div class="articles">
+        <article class="article-carte">
+          <span class="bientot">Bientôt</span>
+          <h3>Comment choisir son fond de teint quand on débute</h3>
+          <p>Sous-ton, carnation, texture : la méthode simple pour ne plus se tromper.</p>
+        </article>
+        <article class="article-carte">
+          <span class="bientot">Bientôt</span>
+          <h3>Ma routine teint naturel en 2 minutes chrono</h3>
+          <p>Les gestes essentiels pour avoir bonne mine avant les cours.</p>
+        </article>
+        <article class="article-carte">
+          <span class="bientot">Bientôt</span>
+          <h3>Éclat Nu et correcteur : la routine complète</h3>
+          <p>Comment associer nos produits pour un teint unifié qui reste naturel.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="pied">
+  <div class="conteneur">
+    <div class="pied__grille">
+      <div>
+        <a class="logo" href="index.html" aria-label="Lumen, accueil"><img class="logo__img" src="assets/img/logo-blanc.png" alt="Lumen" onerror="this.remove()"><span class="logo__texte">Lumen</span></a>
+        <p style="margin-top:12px;max-width:340px">Ta lumière, au naturel. Maquillage inclusif fabriqué à Montpellier depuis 2022.</p>
+      </div>
+      <div>
+        <h4>La marque</h4>
+        <ul>
+          <li><a href="index.html#eclat-nu">Éclat Nu</a></li>
+          <li><a href="index.html#produits">Produits</a></li>
+          <li><a href="blog.html">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Nous suivre</h4>
+        <ul>
+          <li><a href="#">TikTok</a></li>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">YouTube</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="pied__bas">
+      <span>© 2026 Lumen, par Alissia Solbez</span>
+      <span>Projet étudiant, BUT TC. Marque et produits fictifs.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" role="status" aria-live="polite"></div>
+<script src="assets/app.js"></script>
+</body>
+</html>
