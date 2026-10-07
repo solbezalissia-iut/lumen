@@ -26,6 +26,9 @@ Site vitrine de **Lumen**, marque de maquillage naturel et inclusif (projet étu
   - Format conseillé : PNG à fond transparent, environ 400 × 100 px pour un logo horizontal.
 - **Flacon** : le liquide prend automatiquement la couleur de la teinte choisie dans le nuancier ou la bande de teintes. Si tu changes `flacon.png`, demande à refaire les calques de couleur.
 
+- **Photos des produits** : crée le dossier `assets/img/produits/` et dépose une image par produit, en `.png` (fond transparent) ou `.jpg`, avec exactement ces noms :
+  `voile-nu`, `poudre-lumiere`, `petale`, `halo`, `cils-nus`, `terre-douce`, `trait-fin`, `baume-nu`, `velours`, `miroir`, `brow-nu`, `eponge-fondante`, `pinceau-teint`
+  (par exemple `assets/img/produits/velours.png`). Tant qu'une photo manque, l'icône dessinée s'affiche à sa place. Format conseillé : carré, 800 × 800 px.
 - Liens réseaux sociaux (TikTok, Instagram, YouTube) : dans le pied de page de chaque page HTML, remplace `href="#"` par tes vrais liens.
 - Produits et prix : liste `PRODUITS` dans `assets/app.js`.
 - Noms des teintes : liste `NOMS` dans `assets/app.js`.
