@@ -31,8 +31,6 @@ function choisirTeinte(code) {
   const t = trouverTeinte(code);
   if (!t) return;
   document.documentElement.style.setProperty("--teinte", t.couleur);
-  // Sur les teintes très claires, le texte blanc du flacon passe en marron pour rester lisible
-  document.documentElement.style.setProperty("--texte-flacon", t.profondeur <= 1 ? "rgba(90,62,48,.85)" : "transparent");
   document.querySelectorAll("[data-teinte-nom]").forEach((el) => (el.textContent = libelle(t)));
   document.querySelectorAll("[data-teinte-ton]").forEach((el) => (el.textContent = decrireSousTon(t.sousTon)));
   document.querySelectorAll("[data-code]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.code === code)));
@@ -236,6 +234,18 @@ const PRODUITS = [
   { nom: "Éponge Fondante", type: "Éponge de maquillage", gamme: "accessoires", prix: 7.9, forme: "eponge", c: "#ebc9c0" },
   { nom: "Pinceau Teint", type: "Pinceau", gamme: "accessoires", prix: 14.9, forme: "pinceau", c: "#e8d3c0" },
 ];
+
+// Photo produit : essaie .png, puis .jpg, sinon garde l'icône dessinée
+const slug = (t) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+window.essaiPhoto = (img) => {
+  if (!img.dataset.essai) {
+    img.dataset.essai = "jpg";
+    img.classList.add("produit__photo--jpg");
+    img.src = img.src.replace(/\.png$/, ".jpg");
+  } else {
+    img.remove();
+  }
+};
 const NOMS_GAMMES = { teint: "Teint", yeux: "Yeux", levres: "Lèvres", sourcils: "Sourcils", accessoires: "Accessoires" };
 const euros = (n) => n.toFixed(2).replace(".", ",") + " €";
 
@@ -247,8 +257,8 @@ if (grille) {
     art.className = "produit" + (p.star ? " produit--star" : "");
     art.dataset.gamme = p.gamme;
     const visuel = p.star
-      ? `<div class="flacon" role="img" aria-label="Flacon du fond de teint Éclat Nu"><img src="assets/img/flacon.png" alt=""><span class="flacon__liquide"></span><span class="flacon__ombres"></span><span class="flacon__texte"></span></div><span class="produit__badge">Best-seller</span>`
-      : FORMES[p.forme](p.c);
+      ? `<div class="flacon" role="img" aria-label="Flacon du fond de teint Éclat Nu"><img src="assets/img/flacon.png" alt=""><span class="flacon__liquide"></span><span class="flacon__ombres"></span></div><span class="produit__badge">Best-seller</span>`
+      : `<img class="produit__photo" src="assets/img/produits/${slug(p.nom)}.png" alt="${p.nom}, ${p.type.toLowerCase()}" loading="lazy" onerror="essaiPhoto(this)">${FORMES[p.forme](p.c)}`;
     art.innerHTML = `
       <div class="produit__visuel">${visuel}</div>
       <h3>${p.nom}</h3>
