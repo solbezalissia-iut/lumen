@@ -26,10 +26,12 @@ const trouverTeinte = (code) => TEINTES.find((t) => t.code === code);
 const libelle = (t) => `${t.code} ${t.nom}`;
 const decrireSousTon = (st) => `Sous-ton ${SOUS_TONS[st].nom}`;
 
-// Teinte sélectionnée, partagée par le hero et le nuancier
+// Teinte sélectionnée, partagée par le hero, le nuancier et le panier
+let teinteActuelle = "40C";
 function choisirTeinte(code) {
   const t = trouverTeinte(code);
   if (!t) return;
+  teinteActuelle = code;
   document.documentElement.style.setProperty("--teinte", t.couleur);
   document.querySelectorAll("[data-teinte-nom]").forEach((el) => (el.textContent = libelle(t)));
   document.querySelectorAll("[data-teinte-ton]").forEach((el) => (el.textContent = decrireSousTon(t.sousTon)));
@@ -278,28 +280,188 @@ if (grille) {
   });
 }
 
-// ---------- Panier (démo, sans paiement) ----------
-let nbPanier = 0;
+// ---------- Panier (démo : on voit tout, mais aucun paiement possible) ----------
+const CODES_PROMO = { ECLAT15: 0.15 };
+const SEUIL_LIVRAISON = 25;
+const PRIX_LIVRAISON = 3.9;
+let panier = [];
+let codeApplique = "";
+try {
+  const sauve = JSON.parse(localStorage.getItem("lumen-panier") || "null");
+  if (sauve) { panier = sauve.panier || []; codeApplique = sauve.code || ""; }
+} catch (e) { /* stockage indisponible : le panier reste en mémoire */ }
+const sauverPanier = () => {
+  try { localStorage.setItem("lumen-panier", JSON.stringify({ panier, code: codeApplique })); } catch (e) { /* rien */ }
+};
+
 function ajouterAuPanier(p, bouton) {
-  nbPanier++;
-  document.querySelectorAll(".panier__nb").forEach((el) => {
-    el.textContent = nbPanier;
-    el.dataset.vide = "false";
-  });
+  const teinte = p.star ? teinteActuelle : null;
+  const id = p.nom + (teinte ? "-" + teinte : "");
+  const ligne = panier.find((l) => l.id === id);
+  if (ligne) ligne.qte++;
+  else panier.push({ id, nom: p.nom, type: p.type, prix: p.prix, teinte, star: !!p.star, c: p.c || "", qte: 1 });
+  sauverPanier();
+  majPanier();
   if (bouton) {
+    const texte = bouton.textContent;
     bouton.dataset.ajoute = "true";
     bouton.textContent = "Ajouté";
+    setTimeout(() => { bouton.dataset.ajoute = "false"; bouton.textContent = texte; }, 1400);
   }
-  afficherToast(`${p.nom} ajouté au panier`);
+  const t = teinte ? trouverTeinte(teinte) : null;
+  afficherToast(`${p.nom}${t ? " " + libelle(t) : ""} ajouté au panier`);
 }
+
+// Tiroir du panier, ajouté sur toutes les pages
+document.body.insertAdjacentHTML("beforeend", `
+  <div class="tiroir" hidden>
+    <div class="tiroir__fond" data-fermer-panier></div>
+    <aside class="tiroir__panneau" role="dialog" aria-modal="true" aria-labelledby="titre-panier">
+      <div class="tiroir__tete">
+        <h2 id="titre-panier">Ton panier</h2>
+        <button type="button" class="tiroir__fermer" data-fermer-panier aria-label="Fermer le panier">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="tiroir__corps"></div>
+    </aside>
+  </div>`);
+const tiroir = document.querySelector(".tiroir");
+const corpsPanier = tiroir.querySelector(".tiroir__corps");
+let dernierFocus = null;
+
+function ouvrirPanier() {
+  dernierFocus = document.activeElement;
+  majPanier();
+  tiroir.hidden = false;
+  document.body.style.overflow = "hidden";
+  requestAnimationFrame(() => tiroir.dataset.ouvert = "true");
+  tiroir.querySelector(".tiroir__fermer").focus();
+}
+function fermerPanier() {
+  tiroir.dataset.ouvert = "false";
+  document.body.style.overflow = "";
+  setTimeout(() => (tiroir.hidden = true), 250);
+  if (dernierFocus) dernierFocus.focus();
+}
+tiroir.querySelectorAll("[data-fermer-panier]").forEach((b) => b.addEventListener("click", fermerPanier));
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !tiroir.hidden) fermerPanier(); });
+document.querySelectorAll(".panier").forEach((b) => b.addEventListener("click", ouvrirPanier));
+
+function vignette(l) {
+  if (l.star) return `<div class="ligne__photo"><img src="assets/img/flacon.png" alt=""></div>`;
+  const f = slug(l.nom) + ".png";
+  return `<div class="ligne__photo" style="--c:${l.c}"><img src="${DOSSIERS_PHOTOS[0]}${f}" data-fichier="${f}" alt="" onerror="essaiPhoto(this)"></div>`;
+}
+
+function calculer() {
+  const sousTotal = panier.reduce((s, l) => s + l.prix * l.qte, 0);
+  const taux = CODES_PROMO[codeApplique] || 0;
+  const reduction = Math.round(sousTotal * taux * 100) / 100;
+  const livraison = sousTotal === 0 || sousTotal - reduction >= SEUIL_LIVRAISON ? 0 : PRIX_LIVRAISON;
+  return { sousTotal, reduction, livraison, total: sousTotal - reduction + livraison };
+}
+
+function majPanier() {
+  const nb = panier.reduce((s, l) => s + l.qte, 0);
+  document.querySelectorAll(".panier__nb").forEach((el) => {
+    el.textContent = nb;
+    el.dataset.vide = String(nb === 0);
+  });
+  document.querySelectorAll(".panier").forEach((b) => b.setAttribute("aria-label", `Panier, ${nb} article${nb > 1 ? "s" : ""}`));
+  if (!corpsPanier) return;
+
+  if (!panier.length) {
+    corpsPanier.innerHTML = `
+      <div class="panier-vide">
+        <p>Ton panier est vide.</p>
+        <a class="btn" href="index.html#produits" data-fermer-lien>Découvrir les produits</a>
+      </div>`;
+    corpsPanier.querySelector("[data-fermer-lien]").addEventListener("click", fermerPanier);
+    return;
+  }
+
+  const { sousTotal, reduction, livraison, total } = calculer();
+  const resteLivraison = SEUIL_LIVRAISON - (sousTotal - reduction);
+  corpsPanier.innerHTML = `
+    <ul class="lignes">
+      ${panier.map((l, i) => {
+        const t = l.teinte ? trouverTeinte(l.teinte) : null;
+        return `<li class="ligne">
+          ${vignette(l)}
+          <div class="ligne__infos">
+            <b>${l.nom}</b>
+            <span>${l.type}${t ? `, teinte <i class="ligne__teinte" style="--c:${t.couleur}"></i>${libelle(t)}` : ""}</span>
+            <div class="quantite" role="group" aria-label="Quantité de ${l.nom}">
+              <button type="button" data-moins="${i}" aria-label="Retirer un ${l.nom}">−</button>
+              <output aria-live="polite">${l.qte}</output>
+              <button type="button" data-plus="${i}" aria-label="Ajouter un ${l.nom}">+</button>
+            </div>
+          </div>
+          <div class="ligne__droite">
+            <b>${euros(l.prix * l.qte)}</b>
+            <button type="button" class="ligne__retirer" data-retirer="${i}">Retirer</button>
+          </div>
+        </li>`;
+      }).join("")}
+    </ul>
+    <div class="recap">
+      <p class="livraison-info">${resteLivraison > 0 ? `Plus que <b>${euros(resteLivraison)}</b> pour la livraison offerte.` : "Livraison offerte."}</p>
+      <form class="promo" novalidate>
+        <label for="code-promo">Code promo</label>
+        <div><input id="code-promo" name="code" autocomplete="off" placeholder="ECLAT15" value="${codeApplique}"><button type="submit" class="btn btn--clair">Appliquer</button></div>
+        <p class="promo__message" aria-live="polite">${codeApplique ? `Code ${codeApplique} appliqué : −${Math.round(CODES_PROMO[codeApplique] * 100)} %` : ""}</p>
+      </form>
+      <dl>
+        <div><dt>Sous-total</dt><dd>${euros(sousTotal)}</dd></div>
+        ${reduction ? `<div><dt>Réduction ${codeApplique}</dt><dd>−${euros(reduction)}</dd></div>` : ""}
+        <div><dt>Livraison</dt><dd>${livraison ? euros(livraison) : "Offerte"}</dd></div>
+        <div class="recap__total"><dt>Total</dt><dd>${euros(total)}</dd></div>
+      </dl>
+      <button type="button" class="btn recap__commander" data-commander>Commander</button>
+      <p class="recap__note">Site de démonstration (projet étudiant) : aucun paiement n'est possible.</p>
+    </div>`;
+
+  corpsPanier.querySelectorAll("[data-plus]").forEach((b) => b.addEventListener("click", () => { panier[+b.dataset.plus].qte++; sauverPanier(); majPanier(); }));
+  corpsPanier.querySelectorAll("[data-moins]").forEach((b) => b.addEventListener("click", () => {
+    const l = panier[+b.dataset.moins];
+    l.qte--;
+    if (l.qte <= 0) panier.splice(+b.dataset.moins, 1);
+    sauverPanier(); majPanier();
+  }));
+  corpsPanier.querySelectorAll("[data-retirer]").forEach((b) => b.addEventListener("click", () => {
+    const l = panier.splice(+b.dataset.retirer, 1)[0];
+    sauverPanier(); majPanier();
+    afficherToast(`${l.nom} retiré du panier`);
+  }));
+  const form = corpsPanier.querySelector(".promo");
+  const champ = form.querySelector("input");
+  const message = form.querySelector(".promo__message");
+  champ.addEventListener("input", () => { message.textContent = ""; message.dataset.erreur = "false"; });
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const code = champ.value.trim().toUpperCase();
+    if (!code) { message.textContent = "Saisis un code promo."; message.dataset.erreur = "true"; return; }
+    if (!CODES_PROMO[code]) { message.textContent = `Le code ${code} n'existe pas. Essaie ECLAT15.`; message.dataset.erreur = "true"; return; }
+    codeApplique = code; sauverPanier(); majPanier();
+    corpsPanier.querySelector("#code-promo").focus();
+  });
+  corpsPanier.querySelector("[data-commander]").addEventListener("click", () => {
+    corpsPanier.innerHTML = `
+      <div class="panier-vide">
+        <h3>Commande non passée</h3>
+        <p>Lumen est une marque fictive créée pour un projet étudiant : ce site est une démonstration et aucun paiement n'est possible.</p>
+        <p>Total de ta sélection : <b>${euros(total)}</b></p>
+        <button type="button" class="btn btn--clair" data-retour>Revenir au panier</button>
+      </div>`;
+    corpsPanier.querySelector("[data-retour]").addEventListener("click", majPanier);
+  });
+}
+
 document.querySelectorAll("[data-ajouter-star]").forEach((b) =>
   b.addEventListener("click", () => ajouterAuPanier(PRODUITS[0], null))
 );
-document.querySelectorAll(".panier").forEach((b) =>
-  b.addEventListener("click", () =>
-    afficherToast(nbPanier ? `${nbPanier} article${nbPanier > 1 ? "s" : ""} dans ton panier` : "Ton panier est vide : découvre nos produits")
-  )
-);
+majPanier();
 
 // ---------- Toast ----------
 let minuteur;
