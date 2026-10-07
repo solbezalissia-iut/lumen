@@ -235,17 +235,9 @@ const PRODUITS = [
   { nom: "Pinceau Teint", type: "Pinceau", gamme: "accessoires", prix: 14.9, forme: "pinceau", c: "#e8d3c0" },
 ];
 
-// Photo produit : essaie .png, puis .jpg, sinon garde l'icône dessinée
-const slug = (t) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-window.essaiPhoto = (img) => {
-  if (!img.dataset.essai) {
-    img.dataset.essai = "jpg";
-    img.classList.add("produit__photo--jpg");
-    img.src = img.src.replace(/\.png$/, ".jpg");
-  } else {
-    img.remove();
-  }
-};
+// Photo produit : assets/img/produits/<nomcolle>.png, sinon garde l'icône dessinée
+const slug = (t) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+window.essaiPhoto = (img) => img.remove();
 const NOMS_GAMMES = { teint: "Teint", yeux: "Yeux", levres: "Lèvres", sourcils: "Sourcils", accessoires: "Accessoires" };
 const euros = (n) => n.toFixed(2).replace(".", ",") + " €";
 
