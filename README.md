@@ -11,7 +11,7 @@ Site vitrine de **Lumen**, marque de maquillage naturel et inclusif (projet étu
 | `article-eclat-nu.html` | Article « Fond de teint Éclat Nu : un teint naturel en 2 minutes… » |
 | `assets/style.css` | Styles |
 | `assets/app.js` | Interactions (teintes, quiz, filtres, panier de démonstration, test du poignet) |
-| `assets/img/` | Images (flacon et visuels tirés de la pub) |
+| `assets/img/` | Images : flacon (`flacon.png`), reflets du liquide (`flacon-ombres.png`), visuels tirés de la pub |
 
 ## Mettre le site en ligne avec GitHub Pages
 
@@ -24,6 +24,7 @@ Site vitrine de **Lumen**, marque de maquillage naturel et inclusif (projet étu
 
 - **Logo** : dépose ton fichier `logo.png` dans `assets/img/`. Il s'affiche automatiquement en haut de toutes les pages et comme icône d'onglet. Pour le pied de page (fond foncé), ajoute une version claire nommée `logo-blanc.png`. Tant qu'un fichier manque, le nom « Lumen » s'affiche à sa place.
   - Format conseillé : PNG à fond transparent, environ 400 × 100 px pour un logo horizontal.
+- **Flacon** : le liquide prend automatiquement la couleur de la teinte choisie dans le nuancier ou la bande de teintes. Si tu changes `flacon.png`, demande à refaire les calques de couleur.
 
 - Liens réseaux sociaux (TikTok, Instagram, YouTube) : dans le pied de page de chaque page HTML, remplace `href="#"` par tes vrais liens.
 - Produits et prix : liste `PRODUITS` dans `assets/app.js`.

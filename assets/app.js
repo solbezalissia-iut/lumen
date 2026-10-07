@@ -31,6 +31,8 @@ function choisirTeinte(code) {
   const t = trouverTeinte(code);
   if (!t) return;
   document.documentElement.style.setProperty("--teinte", t.couleur);
+  // Sur les teintes très claires, le texte blanc du flacon passe en marron pour rester lisible
+  document.documentElement.style.setProperty("--texte-flacon", t.profondeur <= 1 ? "rgba(90,62,48,.85)" : "transparent");
   document.querySelectorAll("[data-teinte-nom]").forEach((el) => (el.textContent = libelle(t)));
   document.querySelectorAll("[data-teinte-ton]").forEach((el) => (el.textContent = decrireSousTon(t.sousTon)));
   document.querySelectorAll("[data-code]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.code === code)));
@@ -245,7 +247,7 @@ if (grille) {
     art.className = "produit" + (p.star ? " produit--star" : "");
     art.dataset.gamme = p.gamme;
     const visuel = p.star
-      ? `<img src="assets/img/flacon.png" alt="Flacon du fond de teint Éclat Nu"><span class="produit__badge">Best-seller</span>`
+      ? `<div class="flacon" role="img" aria-label="Flacon du fond de teint Éclat Nu"><img src="assets/img/flacon.png" alt=""><span class="flacon__liquide"></span><span class="flacon__ombres"></span><span class="flacon__texte"></span></div><span class="produit__badge">Best-seller</span>`
       : FORMES[p.forme](p.c);
     art.innerHTML = `
       <div class="produit__visuel">${visuel}</div>
